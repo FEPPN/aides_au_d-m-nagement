@@ -82,16 +82,26 @@
   /* ---------- Questions ---------- */
   var YES_NO = [['oui','check','Oui'],['non','x','Non']];
   var STEPS = [
-    { id:'statut', arr:true, cols:2, q:'Quelle est votre situation ?',
+    { id:'cat', cols:2, q:'Quelle est votre situation ?',
+      opts:[
+        ['etudes','graduation-cap','Étudiant','lycéen, étudiant ou alternant'],
+        ['travail','briefcase','Salarié ou retraité','secteur privé ou public'],
+        ['handicap','accessibility','En situation de handicap'],
+        ['autre','circle-dashed','Autre situation']
+      ]},
+    { id:'sEtudes', q:'Vous êtes…',
+      when:function(s){ return s.cat==='etudes'; },
       opts:[
         ['lyceen','graduation-cap','Lycéen','futur étudiant'],
         ['etudiant','book-open','Étudiant','licence, master…'],
-        ['alternant','wrench','Alternant','apprentissage ou contrat pro'],
+        ['alternant','wrench','Alternant','apprentissage ou contrat pro']
+      ]},
+    { id:'sTravail', q:'Vous êtes…',
+      when:function(s){ return s.cat==='travail'; },
+      opts:[
         ['salarie','briefcase','Salarié','du secteur privé'],
         ['fonctionnaire','landmark','Agent public','de l’État'],
-        ['retraite','armchair','Retraité'],
-        ['handicap','accessibility','En situation de handicap'],
-        ['autre','circle-dashed','Aucune de ces situations']
+        ['retraite','armchair','Retraité']
       ]},
     { id:'boursier', q:'Êtes-vous boursier sur critères sociaux ?', hint:'Bourse de lycée, bourse du CROUS ou allocation annuelle spécifique.',
       when:function(s){ return has(s,'lyceen')||has(s,'etudiant'); }, opts:YES_NO },
@@ -168,7 +178,7 @@
 
   /* ---------- État & rendu ---------- */
   var state = { statut:[] }, idx = 0, $card = document.getElementById('ppn-aidem-card');
-  function has(s,v){ return (s.statut||[]).indexOf(v)>-1; }
+  function has(s,v){ return s.cat===v || (s.cat==='etudes' && s.sEtudes===v) || (s.cat==='travail' && s.sTravail===v); }
   function eur(n){ var p=(Math.round(n*100)/100).toFixed(n%1?2:0).split('.'); return p[0].replace(/\B(?=(\d{3})+(?!\d))/g,'\u00a0')+(p[1]?','+p[1]:'')+'\u00a0€'; }
   function active(){ return STEPS.filter(function(st){ return !st.when || st.when(state); }); }
   function answered(st){ var v=state[st.id]; return (st.multi||st.arr) ? !!(v && v.length) : !!v; }
